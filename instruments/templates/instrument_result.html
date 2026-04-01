@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static custom_filters %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'instruments:home' %}"
+        class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
+        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+            </path>
+        </svg>
+        Back to Configuration
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
+    <div class="bg-indigo-50 border-b border-indigo-100 px-6 py-4">
+        <h2 class="text-xl font-bold text-gray-800">Calculation Results: <span class="text-indigo-600 capitalize">
+                {{ result.instrument }}</span></h2>
+    </div>
+
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Coordinates -->
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Geographic Location</h3>
+            <p class="text-gray-800 flex justify-between border-b pb-1 mb-1"><span class="font-medium">Latitude:</span>
+                <span>{{ result.latitude|floatformat:4 }}&deg;</span>
+            </p>
+            <p class="text-gray-800 flex justify-between"><span class="font-medium">Longitude:</span> <span>
+                    {{ result.longitude|floatformat:4 }}&deg;</span></p>
+        </div>
+
+        <!-- Calculated Angles -->
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-100 md:col-span-1 lg:col-span-2 shadow-sm">
+            <h3 class="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-3">Mathematical Variables</h3>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
+                {% for key, value in result.angles.items %}
+                <li
+                    class="flex justify-between items-center bg-white px-3 py-1.5 rounded text-sm text-gray-700 shadow-sm">
+                    <span class="font-medium capitalize text-gray-600">{{ key|replace_underscore|title }}</span>
+                    <span class="font-mono text-indigo-700 font-semibold">{{ value|floatformat:3 }}&deg;</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Dimensions / Orientation -->
+        <div class="bg-emerald-50 rounded-lg p-4 border border-emerald-100 shadow-sm">
+            <h3 class="text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-3">Structure Details</h3>
+            <ul class="space-y-2">
+                {% for key, value in result.dimensions.items %}
+                <li class="flex justify-between text-sm text-gray-700">
+                    <span class="font-medium capitalize">{{ key|replace_underscore|title }}</span>
+                    {% if value is None %}
+                    <span class="font-mono text-gray-400 italic">Infinite</span>
+                    {% else %}
+                    <span class="font-mono text-emerald-700">{{ value }}m</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+                {% for key, value in result.orientation.items %}
+                <li class="flex justify-between text-sm text-gray-700 pt-1 border-t border-emerald-200/50">
+                    <span class="font-medium capitalize text-gray-500">{{ key|replace_underscore|title }}</span>
+                    <span class="font-semibold text-gray-800 text-right capitalize">
+                        {{ value|replace_underscore|title }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Reconstruction Guide -->
+    <div class="bg-indigo-50/50 border-t border-indigo-100 p-6">
+        <h3 class="text-base font-semibold text-indigo-800 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path>
+            </svg>
+            Structure Reconstruction Guide
+        </h3>
+        <p class="text-sm text-gray-700 mb-4 leading-relaxed">
+            This dashboard provides the precise blueprint for replicating traditional astronomical instruments. Here is
+            how to use these metrics:
+        </p>
+
+        {% if result.instrument == 'samrat_yantra' %}
+        <div class="bg-white/80 border-l-4 border-indigo-500 p-4 rounded-r-lg shadow-sm mb-5">
+            <h4 class="font-semibold text-gray-800 text-sm mb-1">What is a Gnomon?</h4>
+            <p class="text-xs text-gray-600 leading-relaxed">The <strong>Gnomon</strong> is the primary shadow-casting
+                structure in a sundial (seen as the large triangular wall in the Samrat Yantra). Its sloped hypotenuse
+                edge is built exactly parallel to the Earth's axis of rotation, which allows the sun's shadow to
+                accurately measure local solar time regardless of the time of year.</p>
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <h4 class="font-semibold text-gray-800 text-sm mb-2 text-indigo-700">1. Foundation & Orientation</h4>
+                <p class="text-xs text-gray-600">The <strong>Geographic Location</strong> dictates the instrument's
+                    alignment. Use the True North/South orientation details in the Structure block to lay the foundation
+                    accurately.</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <h4 class="font-semibold text-gray-800 text-sm mb-2 text-blue-700">2. Inclination & Slopes</h4>
+                <p class="text-xs text-gray-600">The <strong>Mathematical Variables</strong> provide exact angles for
+                    the masonry. The gnomon wall, for instance, must precisely match the location's latitude angle to
+                    track celestial objects correctly.</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <h4 class="font-semibold text-gray-800 text-sm mb-2 text-emerald-700">3. Scale & Dimensions</h4>
+                <p class="text-xs text-gray-600">The <strong>Structure Details</strong> give you the physical
+                    measurements. The base radius determines the overall size and scale of the structure, ensuring
+                    mathematical proportions are maintained.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Visuals Section (3D + Real Image) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Real Image Section -->
+    <section
+        class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden relative border border-gray-800 flex flex-col items-center justify-center">
+        <div
+            class="absolute top-0 left-0 w-full p-6 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none">
+            <h3 class="text-white font-medium flex items-center text-lg tracking-wide drop-shadow-md">
+                <svg class="w-6 h-6 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                    </path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Reference Photo
+            </h3>
+        </div>
+        <img src="{% static 'images/'|add:result.instrument|add:'.jpg' %}" alt="{{ result.instrument|title }}"
+            class="w-full h-full object-cover min-h-[500px]">
+    </section>
+
+    <!-- 3D Viewer Section -->
+    <section
+        class="bg-gray-900 rounded-xl shadow-2xl overflow-hidden relative border border-gray-800 group flex flex-col">
+        <div
+            class="absolute top-0 left-0 w-full p-6 bg-gradient-to-b from-black/80 to-transparent z-10 flex justify-between items-center pointer-events-none">
+            <h3 class="text-white font-medium flex items-center text-lg tracking-wide drop-shadow-md">
+                <svg class="w-6 h-6 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5">
+                    </path>
+                </svg>
+                Interactive 3D Render
+            </h3>
+            <button id="reset-camera-btn"
+                class="pointer-events-auto bg-white/10 hover:bg-white/30 text-white backdrop-blur-md border border-white/30 px-5 py-2.5 rounded-lg text-sm transition-all duration-300 opacity-0 group-hover:opacity-100 flex items-center shadow-lg focus:outline-none focus:ring-2 focus:ring-white/50">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                Reset View
+            </button>
+        </div>
+
+        <div id="3d-viewer" class="w-full flex-grow min-h-[500px] cursor-move">
+            <!-- Three.js will attach 3D canvas here -->
+        </div>
+
+
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Safely pass Django context variables to JavaScript -->
+{{ result|json_script:"geometry-data" }}
+
+<!-- Import Three.js and OrbitControls as ES modules -->
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
+
+<script type="module" src="{% static 'js/instrument_viewer.js' %}?v={{ request.GET.urlencode|default:'2.1' }}"></script>
+{% endblock %}
