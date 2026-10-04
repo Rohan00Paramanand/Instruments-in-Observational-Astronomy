@@ -93,12 +93,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const context = canvas.getContext('2d');
         canvas.width = 512;
         canvas.height = 128;
-        
+
         const fontsize = 36;
         context.font = "Bold " + fontsize + "px Arial";
         const metrics = context.measureText(message);
         const textWidth = metrics.width;
-        
+
         // Draw Background Pill
         context.fillStyle = "rgba(20, 30, 50, 0.75)";
         const margin = 20;
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const startX = (canvas.width - bgWidth) / 2;
         const startY = (canvas.height - bgHeight) / 2;
         const radius = 15;
-        
+
         context.beginPath();
         context.moveTo(startX + radius, startY);
         context.lineTo(startX + bgWidth - radius, startY);
@@ -120,18 +120,18 @@ document.addEventListener("DOMContentLoaded", () => {
         context.quadraticCurveTo(startX, startY, startX + radius, startY);
         context.closePath();
         context.fill();
-        
+
         // Draw Text
         context.fillStyle = "rgba(255, 255, 255, 1.0)";
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillText(message, canvas.width / 2, canvas.height / 2 + 2);
-        
+
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMaterial = new THREE.SpriteMaterial({ map: texture, depthTest: false });
         const sprite = new THREE.Sprite(spriteMaterial);
         sprite.renderOrder = 999; // Render on top
-        sprite.scale.set(12, 3, 1); 
+        sprite.scale.set(12, 3, 1);
         return sprite;
     }
 
